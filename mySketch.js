@@ -11,11 +11,14 @@
 
  let totalSlices = 16; // the number of slices the image will start with... should be divisable by 4
  let cWidth = 1400;
- let cHeight = 1024;
+ let cHeight = 900;
  let capture;
  let vid;
  let offsetAngle = 0;
  let offsetAngleSpeed = 1.0; // Initial rotation speed
+ let selectionmask;
+ let w,h;
+ let aspect_ratio = 1.6; // Stretch factor when projecting at 40 degrees
 
  
  function enterFullscreen() {
@@ -37,7 +40,7 @@
  
  function setup() {
    console.log("setup")
-     cnv = createCanvas(cWidth + 00, cHeight);
+     cnv = createCanvas(cWidth, cHeight, WEBGL);
      capture = createCapture(VIDEO);
      capture.hide();
      //fullscreen(true);
@@ -45,6 +48,9 @@
      let fsButton = createButton('Toggle Fullscreen');
      fsButton.mousePressed(toggleFullscreen);
      //simulateClick()
+     w = int(cWidth / 2.1); //3.2
+     h = int(cHeight / 2.1); //3.2
+     selection_mask = createGraphics(w, h, WEBGL); //creates an off screen renderer
  }
  
  function toggleFullscreen() {
@@ -59,11 +65,7 @@
          //if (mouseX >= 0 && mouseX <= cWidth && mouseY >= 0 && mouseY <= cHeight) { //mouse is over sketch
              background(0);
              //the width and height parameters for the mask
-             var w = int(width / 3.2);
-             var h = int(height / 3.2);
              //create a mask of a slice of the original image.
-             var selection_mask;
-             selection_mask = createGraphics(w, h); //creates an off screen renderer
              selection_mask.noStroke();
              selection_mask.beginShape();
             // selection_mask.smooth();  //causes graphics error in open processing
@@ -72,13 +74,12 @@
              var hRatio = float(cHeight - h) / float(height);
              var slice = createImage(w, h);
              slice = capture.get(int((offsetAngle/2) * wRatio), int((offsetAngle/2) * hRatio), w, h);
-             //slice = capture.get(int((mouseX) * wRatio), int((mouseY) * hRatio), w, h);
              slice.mask(selection_mask);
-             translate(width / 2, height / 2);
+             //translate(width / 8, height / 4);
              var scaleAmt = 1.15; // overall size
              scale(scaleAmt);
              //apply slice in a circle
-       scale(1.5, 1.0);  // Increase to stretch more horizontally
+             scale(aspect_ratio, 1.0);  // Increase to stretch more horizontally
              rotate(radians(offsetAngle));
              for (k = 0; k <= totalSlices; k++) {
                  rotate(k * radians(360 / (totalSlices / 2)));
@@ -88,10 +89,10 @@
                  scale(-1.0, 1.0);
              }
  
-//             offsetAngle = (offsetAngle + 1.0) % 720;
              offsetAngle = (offsetAngle + offsetAngleSpeed) % 720;
 
              resetMatrix();
+             selection_mask.clear();
          //}
      }
  }
@@ -122,9 +123,12 @@
          case RIGHT_ARROW: // Right arrow key
              offsetAngleSpeed += 0.1; // Increase the rotation speed
              break;
-         case 83: // 's' key for saving
-             saveCanvas(cnv, 'kaleidoscope', 'jpg');
-             break;
+	 case 65: // A for changing aspect ratio
+	     if (aspect_ratio == 1.1) { 
+		aspect_ratio = 1.6 
+	     } else {
+                aspect_ratio = 1.1
+	     }     
      }
  }
  
