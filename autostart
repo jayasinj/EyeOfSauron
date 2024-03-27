@@ -23,6 +23,6 @@ sleep 1
 unclutter -idle 0.1 -root &
 
 # Start Chromium in kiosk mode
-bash -c "chromium-browser --remote-debugging-port=9222 --remote-debugging-address=http://0.0.0.0:9222 --enable-logging --user-data-dir=/home/jons/EyeOfSauron --noerrdialogs --disable-infobars --kiosk --use-fake-ui-for-media-stream 'http://localhost:3000/Launch.html' >> /home/jons/chromeout.log 2>&1" &
+bash -c "chromium-browser --remote-debugging-port=9222 --remote-debugging-address=http://0.0.0.0:9222 --enable-logging --user-data-dir=/home/jons/EyeOfSauron --noerrdialogs --disable-infobars --kiosk --autoplay-policy=no-user-gesture-required --alsa-input-device='hw:4,0' --use-fake-ui-for-media-stream 'http://localhost:3000/Launch.html' >> /home/jons/chromeout.log 2>&1" &
 
 
