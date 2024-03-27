@@ -21,8 +21,21 @@
  let aspect_ratio = 1.6; // Stretch factor when projecting at 40 degrees
  let slice;
  let buttonsStatus = 0
+ const debugLines = 5;
 
-const debugLines = 5;
+ // Sound stuff
+ let sound;
+ let audioContext;
+ let analyser;
+ let microphoneStream;
+ let bufferSize = 2048;
+ let buffer = new Float32Array(bufferSize);
+ let beatDetected = false;
+ let peak = 0.0;
+
+function preload() {
+    sound = loadSound('sounds/ping.mp3');
+}
 
 
 class DebugStringQueue {
@@ -122,6 +135,27 @@ const debugFontSize = 22;
      slice = createImage(w, h); // Create a single slice object once on setup
 
      frameRate(30); // Attempt to limit refresh at 30 fps
+
+     debugOut.push('Setting up Audio');
+
+     // Setup audio
+     audioContext = new (window.AudioContext || window.webkitAudioContext)();
+     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+           navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(function (stream) {
+                    microphoneStream = audioContext.createMediaStreamSource(stream);
+                    analyser = audioContext.createAnalyser();
+                    analyser.fftSize = bufferSize * 2;
+                    microphoneStream.connect(analyser);
+                    detectBeat();
+            })
+            .catch(function (err) {
+                   debugOut.push('Error accessing microphone:', err);
+            });
+        } else {
+           debugOut.push('getUserMedia not supported in this browser.');
+        }
+
      debugOut.push('setup complete')
  }
  
@@ -138,7 +172,11 @@ const debugFontSize = 22;
 
     // Output FPS Count
     textGraphics.clear(); // Clear previous frame text
-    textGraphics.text(`FPS: ${frameRate().toFixed(1)} BTNs: ${buttonsStatus.toString(2).padStart(8, '0')}`, 10, 15);
+    buttonBits = buttonsStatus & 0b11111;
+    buttonStateBinary = buttonBits.toString(2).padStart(5, '0');
+
+    // Display FPS and button state
+    textGraphics.text(`FPS:${frameRate().toFixed(0)} BTNs:${buttonStateBinary} P:${peak.toFixed(2)}`, 10, 15);    
 
     // Ourput Debug
     for(let i = 0; i < debugOut.getCount(); i++) { 
@@ -177,12 +215,24 @@ const debugFontSize = 22;
              rotate(radians(offsetAngle));
              for (k = 0; k <= totalSlices; k++) {
                  rotate(k * radians(360 / (totalSlices / 2)));
+
+		 blendMode(BLEND);
                  image(slice, 0, 0);
                  scale(-1.0, 1.0);
                  image(slice, 0, 0);
                  scale(-1.0, 1.0);
-             }
- 
+
+		             
+		     if (beatDetected && k%2) {
+			fill(offsetAngle % 255, (offsetAngle+100) % 255, (offsetAngle + 200) % 255); // Color cycle by angle
+			//blendMode(DARKEST);
+			//for (let i = 1; i <= 4; i++) 
+			i = 4;
+			ellipse(i * 100, 0, i * peak * 10, i * peak * 50); // Draw an additional ellipse
+			
+		     }
+   	  }
+	 
           offsetAngle = (offsetAngle + offsetAngleSpeed) % 720;
           resetMatrix();
           selection_mask.clear();
@@ -191,13 +241,23 @@ const debugFontSize = 22;
      	  // console.log(capture.loadmetadata); // Explain why capture fails
           background(255,0,0); // Set background to red to indicate capture fail...
      }
+
+
      pop();
+
 
  }
 
  // Key functions change the number of slices and save the image
  function keyPressed() {
      debugOut.push(`Key Pressed: ${keyCode}`); // Explain why capture fails
+     if (sound.isPlaying()) {
+        // If the sound is already playing, stop it
+        sound.stop();
+     } else {
+        // Otherwise, play the sound
+        sound.play();
+     }
      switch (keyCode) {
          case 38: //up arrow
              totalSlices = (totalSlices + 4) % 64;
@@ -258,6 +318,32 @@ function mapButtontoJSKey(pressed, num) {
          keyReleased();
       }
       debugOut.push(`Sent.`);
+}
+
+function detectBeat() {
+    analyser.getFloatTimeDomainData(buffer);
+    peak = getPeak(buffer);
+    //debugOut.push(`Peak: ${peak.toFixed(4)}`);
+    if (peak > 0.1 && !beatDetected) {
+	console.log('Beat detected!');
+	beatDetected = true;
+	setTimeout(resetBeatDetection, 50); // Reset beat detection after 1/10 second
+        debugOut.push(`Beat, Peak: ${peak.toFixed(4)}`);
+    }
+    requestAnimationFrame(detectBeat);
+}
+
+function getPeak(buffer) {
+    let peak = 0;
+    for (let i = 0; i < buffer.length; i++) {
+	let value = Math.abs(buffer[i]);
+	peak = Math.max(peak, value);
+    }
+    return peak;
+}
+
+function resetBeatDetection() {
+    beatDetected = false;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
