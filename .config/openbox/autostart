@@ -1,0 +1,28 @@
+# Turn off DPMS / Screen blanking
+xset -dpms
+xset s off
+xset s noblank
+
+# Start Python HTTP server in background
+#cd /home/jons/EyeOfSauron && python3 -m http.server 8000 &
+
+# Config r-pi pins for pull-up, no way to do this from node
+pinctrl set 21 ip pu
+pinctrl set 26 ip pu
+pinctrl set 20 ip pu
+pinctrl set 16 ip pu
+pinctrl set 19 ip pu
+
+# Start NodeJS server in background
+bash -c "cd /home/jons/EyeOfSauron && node server.js >>/home/jons/nodejs_output.log 2>&1" &
+ 
+
+# Give it a chance to kick off
+sleep 1
+
+unclutter -idle 0.1 -root &
+
+# Start Chromium in kiosk mode
+bash -c "chromium-browser --remote-debugging-port=9222 --remote-debugging-address=http://0.0.0.0:9222 --enable-logging --user-data-dir=/home/jons/EyeOfSauron --noerrdialogs --disable-infobars --kiosk --autoplay-policy=no-user-gesture-required --alsa-input-device='hw:4,0' --use-fake-ui-for-media-stream 'http://localhost:3000/Launch.html' >> /home/jons/chromeout.log 2>&1" &
+
+
