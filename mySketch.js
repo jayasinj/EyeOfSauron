@@ -9,6 +9,12 @@
  *and his use of Mask.  His original sketch is archived at http://www.openprocessing.org/visuals/?visualID=1288
  */
 
+// Define global variables for menu navigation
+let menuOptions = ['kaleidoscope', 'ToggleAspect', 'option3']; // Update with your menu options
+let selectedOptionIndex = 0;
+let inMenu = true; // Flag to indicate whether the user is currently in the menu
+
+
  let totalSlices = 16; // the number of slices the image will start with... should be divisable by 4
  let cWidth = 1400;
  let cHeight = 1024;
@@ -165,6 +171,12 @@ const debugFontSize = 22;
  }
  
  function draw() {
+
+  if(inMenu)
+  {
+    ShowMenu();
+  }
+  else{
     background(0); // black background
 
     push();
@@ -245,8 +257,29 @@ const debugFontSize = 22;
 
      pop();
 
-
+    }
  }
+
+
+ function ShowMenu()
+ {
+  if (inMenu) {
+    background(0); // Black background for menu
+    fill(255); // White text color
+    textSize(24); // Adjust text size as needed
+
+    // Display menu options
+    for (let i = 0; i < menuOptions.length; i++) {
+        if (i === selectedOptionIndex) {
+            // Highlight the selected option
+            fill(255, 0, 0); // Red color for selected option
+        } else {
+            fill(255); // White color for other options
+        }
+        text(menuOptions[i], width / 2, height / 2 + i * 30); // Adjust position as needed
+    }
+ }
+}
 
  // Key functions change the number of slices and save the image
  function keyPressed() {
@@ -258,6 +291,20 @@ const debugFontSize = 22;
         // Otherwise, play the sound
         sound.play();
      }
+
+     if (inMenu) {
+      // Handle menu navigation
+      if (keyCode === UP_ARROW) {
+          selectedOptionIndex = (selectedOptionIndex - 1 + menuOptions.length) % menuOptions.length;
+      } else if (keyCode === DOWN_ARROW) {
+          selectedOptionIndex = (selectedOptionIndex + 1) % menuOptions.length;
+      } else if (keyCode === ENTER) {
+          // Execute selected menu option
+          executeMenuOption(menuOptions[selectedOptionIndex]);
+          inMenu = false; // Exit the menu after selecting an option
+      }
+  } else {
+
      switch (keyCode) {
          case 38: //up arrow
              totalSlices = (totalSlices + 4) % 64;
@@ -292,8 +339,49 @@ const debugFontSize = 22;
          case 72: // H key or Home button - should reset the functionality, also may use as a start of backdoor menu?
              debugOut.push('Home Key Pressed');
              break;
+         case ENTER: // Enter key
+             inMenu = true; // Enter the menu
+             break;
      }
- }
+ }}
+
+
+ function executeMenuOption(option) {
+  switch (option) {
+      case 'kaleidoscope':
+          // Code to start the kaleidoscope sketch
+          inMenu = false; // Exit the menu
+          break;
+          case 'ToggleAspect':
+            // Change aspect ratio
+            if (aspect_ratio === 1.1) {
+                aspect_ratio = 1.6;
+            } else {
+                aspect_ratio = 1.1;
+            }
+            debugOut.push(`Aspect ratio changed to: ${aspect_ratio}`);
+            inMenu = false; // Exit the menu
+            break;
+          case 'option3':
+            // Load the draw sketch from drawSketch.js
+            loadDrawSketch();
+            inMenu = false; // Exit the menu
+            break;
+
+      default:
+          // Handle unknown options
+          console.log("Unknown option selected");
+          break;
+  }
+}
+
+
+function loadDrawSketch() {
+  // Dynamically load the draw sketch JavaScript file
+  const script = document.createElement('script');
+  script.src = 'Heartbeat.js';
+  document.body.appendChild(script);
+}
 
 // This event may be handy when coding things like base movement in space invaders
 function keyReleased() {
