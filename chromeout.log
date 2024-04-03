@@ -1,0 +1,16 @@
+[17939:45571:0403/111653.556145:ERROR:named_platform_channel_mac.cc(44)] bootstrap_check_in com.google.Chrome.apps.e0de3892f3624b6102fe1014c5d4619d: Permission denied (1100)
+[17939:45571:0403/111654.510109:ERROR:login_database.cc(1080)] Unable to open the password store database.
+[17939:45827:0403/111654.509996:ERROR:login_database.cc(1080)] Unable to open the password store database.
+[17939:45571:0403/111654.515816:ERROR:login_database_async_helper.cc(61)] Could not create/open login database.
+[17939:45827:0403/111654.515816:ERROR:login_database_async_helper.cc(61)] Could not create/open login database.
+
+DevTools listening on ws://127.0.0.1:9222/devtools/browser/9c35d680-8ad0-49ea-ae75-5a610940cbb5
+[17939:39175:0403/111655.659025:ERROR:top_sites_backend.cc(78)] Failed to initialize database.
+2024-04-03 11:16:57.212 Google Chrome[17939:244437] setPresentationOptions called with NSApplicationPresentationFullScreen when there is no visible fullscreen window; this call will be ignored.
+[17939:37891:0403/111702.502606:ERROR:quota_database.cc(936)] Could not open the quota database, resetting.
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+[17939:45571:0403/112629.976866:ERROR:login_database.cc(1080)] Unable to open the password store database.
+[17939:45571:0403/112629.978114:ERROR:login_database_async_helper.cc(61)] Could not create/open login database.
+[17939:80899:0403/112629.979681:ERROR:login_database.cc(1080)] Unable to open the password store database.
+[17939:80899:0403/112629.979915:ERROR:login_database_async_helper.cc(61)] Could not create/open login database.
+[17939:37891:0403/112630.628962:ERROR:top_sites_backend.cc(78)] Failed to initialize database.

@@ -1,0 +1,16 @@
+
+cd /Users/janaka/Documents/GitHub/EyeOfSauron && python3 -m http.server 8000 &
+
+
+#bash -c "cd /home/jons/EyeOfSauron && node server.js >>/home/jons/nodejs_output.log 2>&1" &
+ 
+
+# Give it a chance to kick off
+sleep 1
+
+# Start Chromium in kiosk mode
+#bash -c "chromium-browser --remote-debugging-port=9222 --remote-debugging-address=http://0.0.0.0:9222 --enable-logging --user-data-dir=/home/jons/EyeOfSauron --noerrdialogs --disable-infobars --kiosk --autoplay-policy=no-user-gesture-required --alsa-input-device='hw:4,0' --use-fake-ui-for-media-stream 'http://localhost:3000/Launch.html' >> /home/jons/chromeout.log 2>&1" &
+
+# MAC kickoff
+echo "Starting Chrome..."
+bash -c "'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --remote-debugging-port=9222 --remote-debugging-address=http://0.0.0.0:9222 --enable-logging --user-data-dir=/Users/janaka/Documents/GitHub/EyeOfSauron --noerrdialogs --disable-infobars --kiosk --autoplay-policy=no-user-gesture-required --enable-media-stream --auto-open-devtools-for-tabs 'http://localhost:8000/Launch.html' >> chromeout.log 2>&1" &
