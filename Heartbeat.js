@@ -1,12 +1,25 @@
 // gifPlayer.js
-let gif;
+let Heart_gif 
 let lastBeatTime = 0;
-let fft;
-let peakDetect;
-let mic;
+//let fft;
+//let peakDetect;
+//let mic;
 
-function setup() {
-    gif = document.getElementById('gif');
+export const Heartbeat = {
+    setup(p) {
+        console.log('Heartbeat:setup() called');
+        //Heartbeat_setup()
+    },
+    draw(p) {
+        console.log('Heartbeat:draw() called');
+        //Heartbeat.draw()
+    }
+  };
+  
+/*
+function Heartbeat_setup() {
+    console.log('Heartbead:setup()');
+    Heart_gif= document.getElementById('gif');
     fft = new p5.FFT();
     peakDetect = new p5.PeakDetect(); // Create a PeakDetect object
 
@@ -16,7 +29,7 @@ function setup() {
 
     // Set the microphone as the input for FFT analysis
     fft.setInput(mic);
-}
+}*/
 
 function playGif() {
     let currentTime = millis();
@@ -32,6 +45,7 @@ function playGif() {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    setup();
-    playGif();
+    console.log("Heartbeat:DOMContentLoaded")
+    //setup();
+    //playGif();
 });
