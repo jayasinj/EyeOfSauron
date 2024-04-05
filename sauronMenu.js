@@ -2,15 +2,44 @@
 
 console.log('sauronMenu:');
 
-import { setPeak, setBeatDetect } from './sharedState.js';
-import { Kaleido } from "./Kaleido";
+import('./sharedState.js').then(sharedStateModule => {
+    const { setPeak, setBeatDetect } = sharedStateModule;
+    // Use setPeak, setBeatDetect...
+    console.log('sharedState loaded:');
+  });
+  
+  import('./Kaleido.js').then(KaleidoModule => {
+    const { Kaleido } = KaleidoModule;
+    // Use Kaleido...
+    console.log('Kaleido loaded:');
+  });
+  
+  // Declare debugOut at a higher scope
+  let debugOut;
+
+  import('./debugOut.js').then(debugOutModule => {
+    const { debugOut } = debugOutModule;
+    initializeApplication();
+    // Use debugOut...
+    console.log('debugOut loaded:');
+  }).catch(error => {
+    console.error("Error debugOut module:", error);
+  });
+
+function initializeApplication() {
+    debugOut("debugOut Active");
+}
+
+// import { setPeak, setBeatDetect } from './sharedState.js';
+// import { Kaleido } from "./Kaleido.js";
+//import { debugOut } from './debugOut.js'
 
 console.log('Kaleido loaded:');
 
 //import { Heartbeat } from './Heartbeat.js';
 
 
-let currentSketch = Kaleido;
+//let currentSketch = Kaleido;
 
  // Sound stuff
  let analyser;
@@ -22,7 +51,7 @@ let currentSketch = Kaleido;
 // Define AudioContext globally
 let sharedAudioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-let kaleido = function(sharedAudioContext) {
+/*let kaleido = function(sharedAudioContext) {
   return function(p) {
 
     p.setup = function() {
@@ -33,7 +62,7 @@ let kaleido = function(sharedAudioContext) {
         Kaleido.draw(p);
     }
   };
-};
+};*/
 /*
 let heartbeat = function(sharedAudioContext) {
   return function(p) {
@@ -48,6 +77,15 @@ let heartbeat = function(sharedAudioContext) {
   };
 };*/
 
+function setup()
+{
+    debugOut.push('sauronMenu:setup')
+}
+
+function draw()
+{
+    debugOut.push('sauronMenu:draw')
+}
 
 function resumeSharedAudio() {
     // Check if AudioContext is in a suspended state (due to browser autoplay policies)
@@ -86,7 +124,16 @@ function setupSharedAudio()
 
 // Start up with Kaleidoscope
 console.log('sauronMenu: module loaded');
-new p5(kaleido(sharedAudioContext), 'sketch-container');
+//new p5(kaleido(sharedAudioContext), 'sketch-container');
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Assuming your server is running on the same host and port 3000
+
+    debugOut.push('sauronMenu:DOMContentLoaded');
+    new p5(kaleido(sharedAudioContext), 'sketch-container'); 
+    
+});
+
 
 
 //new p5(kaleido(sharedAudioContext));

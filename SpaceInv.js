@@ -1,5 +1,31 @@
 // Made by Matthew Spotten
 
+// Jon's buttons / menu addition
+
+let ButtonsMenu; // Dynamic support for menu / mapped buttons
+
+// Load the module
+document.addEventListener('DOMContentLoaded', () => {
+    // Assuming your server is running on the same host and port 3000
+
+    debugOut.push('DOMContentLoaded');
+     // Assuming ButtonsMenu.js exports a default function or class
+    import('./ButtonsMenu.js').then(module => {
+      ButtonsMenu = module.default;
+      // Now you can use ButtonsMenu
+      ButtonsMenu.btnConnectWebSockets();
+    }).catch(error => {
+      console.error("Failed to load ButtonsMenu.js", error);
+    });
+});
+
+// fake debug out
+const debugOut = {
+	push: function(message) {
+	  console.log(message);
+	}
+  };
+  
 let shooter_img;
 let shooter_exp = new Array(2);
 let aliens = new Array(7);
@@ -481,19 +507,19 @@ function toggle_exp_frame(time) {
 	
 }
 function preload() {
-	shooter_img = loadImage("shooter.png");
-	aliens[0] = loadImage("alien_1_frame_0.png");
-	aliens[1] = loadImage("alien_1_frame_1.png");
-	aliens[2] = loadImage("alien_2_frame_0.png");
-	aliens[3] = loadImage("alien_2_frame_1.png");
-	aliens[4] = loadImage("alien_3_frame_0.png");
-	aliens[5] = loadImage("alien_3_frame_1.png");
-	aliens[6] = loadImage("Explosion.png");
+	shooter_img = loadImage("images/shooter.png");
+	aliens[0] = loadImage("images/alien_1_frame_0.png");
+	aliens[1] = loadImage("images/alien_1_frame_1.png");
+	aliens[2] = loadImage("images/alien_2_frame_0.png");
+	aliens[3] = loadImage("images/alien_2_frame_1.png");
+	aliens[4] = loadImage("images/alien_3_frame_0.png");
+	aliens[5] = loadImage("images/alien_3_frame_1.png");
+	aliens[6] = loadImage("images/Explosion.png");
 	
-	shooter_exp[0] = loadImage("shooter_explotion_frame_0.png");
-	shooter_exp[1] = loadImage("shooter_explotion_frame_1.png");
+	shooter_exp[0] = loadImage("images/shooter_explotion_frame_0.png");
+	shooter_exp[1] = loadImage("images/shooter_explotion_frame_1.png");
 	
-	red_ship = loadImage("red_space_ship.png");
+	red_ship = loadImage("images/red_space_ship.png");
 }
 function setup() {
 	theme_Color = color(0, 255, 0);
@@ -514,6 +540,8 @@ function setup() {
 }
 
 function draw() {
+
+	if (ButtonsMenu) { if (ButtonsMenu.ShowMenu()) return; } // check to display menu
 	
 	if (!ship_visible) {
 		if (millis() > ship_preMillis + ship_random_time) {
@@ -694,6 +722,8 @@ function draw() {
 	}
 }
 function keyPressed() {
+	if (ButtonsMenu) { if (ButtonsMenu.menuKeyPressed(keyCode)) return; } // Give menu a change to capture
+
 	if (keyCode == LEFT_ARROW) {
 		LEFT_K = true;
 	}
@@ -707,6 +737,10 @@ function keyPressed() {
 			//bullet_Y = height - 25;
 			//bullet_Visible = true;
 		//}
+	}
+
+	if (key == 'H') {
+		window.location.assign('./Launch.html')
 	}
 }
 function keyReleased() {
@@ -726,14 +760,14 @@ function keyReleased() {
 
 
 var textCol = 255;
-var textSize = 2;
+var textSizeInv = 2; // Had to fix this because it overrides the p5 function textSize - muppets...
 var CurX, CurY;
 
 function setTextColor(Color) {
-  textCol = Color;
+  textSizeInv = Color;
 }
 function setTextSize(size) {
-  textSize = size;
+	textSizeInv = size;
 }
 
 function isKthBitSet(n, k)
@@ -761,7 +795,7 @@ function drawChar(x, y, Char, color, Size) {
 }
 function Pixel_text(text, x, y) {
 	for (var i = 0; i < text.length; i++) {
-		drawChar(x + i * textSize * 6, y, text[i], textCol, textSize);
+		drawChar(x + i * textSizeInv * 6, y, text[i], textCol, textSizeInv);
 	}
 }
 function setCursor(x, y) {
@@ -770,8 +804,8 @@ function setCursor(x, y) {
 }
 function Print(text) {
 	for (var i = 0; i < text.length; i++) {
-		CurX += textSize * 6;
-		drawChar(CurX, CurY, text[i], textCol, textSize);
+		CurX += textSizeInv * 6;
+		drawChar(CurX, CurY, text[i], textCol, textSizeInv);
 	}
 }
 

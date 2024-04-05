@@ -9,11 +9,6 @@
  *and his use of Mask.  His original sketch is archived at http://www.openprocessing.org/visuals/?visualID=1288
  */
 
-// Define global variables for menu navigation
-let menuOptions = ['kaleidoscope', 'ToggleAspect', 'option3']; // Update with your menu options
-let selectedOptionIndex = 0;
-let inMenu = true; // Flag to indicate whether the user is currently in the menu
-
 
  let totalSlices = 16; // the number of slices the image will start with... should be divisable by 4
  let cWidth = 1400;
@@ -43,6 +38,7 @@ function preload() {
     sound = loadSound('sounds/ping.mp3');
 }
 
+let ButtonsMenu; // Dynamic support for menu / mapped buttons
 
 class DebugStringQueue {
   constructor(logFilePath) {
@@ -172,114 +168,90 @@ const debugFontSize = 22;
  
  function draw() {
 
-  if(inMenu)
-  {
-    ShowMenu();
-  }
-  else{
-    background(0); // black background
+  if (ButtonsMenu) { if (ButtonsMenu.ShowMenu()) return; } // check to display menu
+ 
+  background(0); // black background
 
-    push();
-    translate(cWidth / 2, cHeight /2);
+  push();
+  translate(cWidth / 2, cHeight /2);
 
-    // Output FPS Count
-    textGraphics.clear(); // Clear previous frame text
-    buttonBits = buttonsStatus & 0b11111;
-    buttonStateBinary = buttonBits.toString(2).padStart(5, '0');
+  // Output FPS Count
+  textGraphics.clear(); // Clear previous frame text
+  buttonBits = buttonsStatus & 0b11111;
+  buttonStateBinary = buttonBits.toString(2).padStart(5, '0');
 
-    // Display FPS and button state
-    textGraphics.text(`FPS:${frameRate().toFixed(0)} BTNs:${buttonStateBinary} P:${peak.toFixed(2)}`, 10, 15);    
+  // Display FPS and button state
+  textGraphics.text(`FPS:${frameRate().toFixed(0)} BTNs:${buttonStateBinary} P:${peak.toFixed(2)}`, 10, 15);    
 
-    // Ourput Debug
-    for(let i = 0; i < debugOut.getCount(); i++) { 
-        let dstring;
-	dstring = debugOut.getByIndex(i);
-        if (dstring != null) {
-	   textGraphics.text(dstring, 10, 18 + debugFontSize * (i+1));
-        } else {
-	   textGraphics.text(".", 10, 18 + debugFontSize * (i+1));
-	}
-    }
-
-    // Draw the 2D graphics buffer onto the main canvas
-    image(textGraphics, -cWidth / 2, -cHeight / 2);
-
-     if (capture.loadedmetadata == true) {
-             //background(0); // black background
-             selection_mask.arc(0, 0, 2 * w, 2 * h, 0, radians(370 / totalSlices + .1)); //adding a little extra to hide edges
-             var wRatio = float(cWidth - w) / float(width);
-             var hRatio = float(cHeight - h) / float(height);
-
-             // Ensure capture is ready and dimensions are valid
-            if (capture.elt.readyState === capture.elt.HAVE_ENOUGH_DATA && w > 0 && h > 0) {
-                // Now safely attempt to get and manipulate `slice`
-                slice = capture.get(Math.floor((offsetAngle/2) * wRatio), Math.floor((offsetAngle/2) * hRatio), w, h);
-                if (slice) {
-                    slice.mask(selection_mask);
-                }
-            }
-
-             //translate(width / 8, height / 4);
-             var scaleAmt = 1.15; // overall size
-             scale(scaleAmt);
-             //apply slice in a circle
-             scale(aspect_ratio, 1.0);  // Increase to stretch more horizontally
-             rotate(radians(offsetAngle));
-             for (k = 0; k <= totalSlices; k++) {
-                 rotate(k * radians(360 / (totalSlices / 2)));
-
-		 blendMode(BLEND);
-                 image(slice, 0, 0);
-                 scale(-1.0, 1.0);
-                 image(slice, 0, 0);
-                 scale(-1.0, 1.0);
-
-		             
-		     if (beatDetected && k%2) {
-			fill(offsetAngle % 255, (offsetAngle+100) % 255, (offsetAngle + 200) % 255); // Color cycle by angle
-			//blendMode(DARKEST);
-			//for (let i = 1; i <= 4; i++) 
-			i = 4;
-			ellipse(i * 100, 0, i * peak * 10, i * peak * 50); // Draw an additional ellipse
-			
-		     }
-   	  }
-	 
-          offsetAngle = (offsetAngle + offsetAngleSpeed) % 720;
-          resetMatrix();
-          selection_mask.clear();
-     } else {
-	  // debugOut.push('capture failed'); - We get a number of these in startup
-     	  // console.log(capture.loadmetadata); // Explain why capture fails
-          background(255,0,0); // Set background to red to indicate capture fail...
-     }
-
-
-     pop();
-
-    }
- }
-
-
- function ShowMenu()
- {
-  if (inMenu) {
-    background(0); // Black background for menu
-    fill(255); // White text color
-    textSize(24); // Adjust text size as needed
-
-    // Display menu options
-    for (let i = 0; i < menuOptions.length; i++) {
-        if (i === selectedOptionIndex) {
-            // Highlight the selected option
-            fill(255, 0, 0); // Red color for selected option
-        } else {
-            fill(255); // White color for other options
-        }
-        text(menuOptions[i], width / 2, height / 2 + i * 30); // Adjust position as needed
-    }
- }
+  // Ourput Debug
+  for(let i = 0; i < debugOut.getCount(); i++) { 
+      let dstring;
+dstring = debugOut.getByIndex(i);
+      if (dstring != null) {
+    textGraphics.text(dstring, 10, 18 + debugFontSize * (i+1));
+      } else {
+    textGraphics.text(".", 10, 18 + debugFontSize * (i+1));
 }
+  }
+
+  // Draw the 2D graphics buffer onto the main canvas
+  image(textGraphics, -cWidth / 2, -cHeight / 2);
+
+    if (capture.loadedmetadata == true) {
+            //background(0); // black background
+            selection_mask.arc(0, 0, 2 * w, 2 * h, 0, radians(370 / totalSlices + .1)); //adding a little extra to hide edges
+            var wRatio = float(cWidth - w) / float(width);
+            var hRatio = float(cHeight - h) / float(height);
+
+            // Ensure capture is ready and dimensions are valid
+          if (capture.elt.readyState === capture.elt.HAVE_ENOUGH_DATA && w > 0 && h > 0) {
+              // Now safely attempt to get and manipulate `slice`
+              slice = capture.get(Math.floor((offsetAngle/2) * wRatio), Math.floor((offsetAngle/2) * hRatio), w, h);
+              if (slice) {
+                  slice.mask(selection_mask);
+              }
+          }
+
+            //translate(width / 8, height / 4);
+            var scaleAmt = 1.15; // overall size
+            scale(scaleAmt);
+            //apply slice in a circle
+            scale(aspect_ratio, 1.0);  // Increase to stretch more horizontally
+            rotate(radians(offsetAngle));
+            for (k = 0; k <= totalSlices; k++) {
+                rotate(k * radians(360 / (totalSlices / 2)));
+
+    blendMode(BLEND);
+                image(slice, 0, 0);
+                scale(-1.0, 1.0);
+                image(slice, 0, 0);
+                scale(-1.0, 1.0);
+
+                
+        if (beatDetected && k%2) {
+    fill(offsetAngle % 255, (offsetAngle+100) % 255, (offsetAngle + 200) % 255); // Color cycle by angle
+    //blendMode(DARKEST);
+    //for (let i = 1; i <= 4; i++) 
+    i = 4;
+    ellipse(i * 100, 0, i * peak * 10, i * peak * 50); // Draw an additional ellipse
+    
+        }
+    }
+  
+        offsetAngle = (offsetAngle + offsetAngleSpeed) % 720;
+        resetMatrix();
+        selection_mask.clear();
+    } else {
+  // debugOut.push('capture failed'); - We get a number of these in startup
+      // console.log(capture.loadmetadata); // Explain why capture fails
+        background(255,0,0); // Set background to red to indicate capture fail...
+    }
+
+
+    pop();
+
+  }
+
 
  // Key functions change the number of slices and save the image
  function keyPressed() {
@@ -292,18 +264,8 @@ const debugFontSize = 22;
         sound.play();
      }
 
-     if (inMenu) {
-      // Handle menu navigation
-      if (keyCode === UP_ARROW) {
-          selectedOptionIndex = (selectedOptionIndex - 1 + menuOptions.length) % menuOptions.length;
-      } else if (keyCode === DOWN_ARROW) {
-          selectedOptionIndex = (selectedOptionIndex + 1) % menuOptions.length;
-      } else if (keyCode === ENTER) {
-          // Execute selected menu option
-          executeMenuOption(menuOptions[selectedOptionIndex]);
-          inMenu = false; // Exit the menu after selecting an option
-      }
-  } else {
+     //console.log(ButtonsMenu)
+     if (ButtonsMenu) { if (ButtonsMenu.menuKeyPressed(keyCode)) return; } // Give menu a change to capture
 
      switch (keyCode) {
          case 38: //up arrow
@@ -329,51 +291,18 @@ const debugFontSize = 22;
          case RIGHT_ARROW: // Right arrow key
              offsetAngleSpeed += 0.1; // Increase the rotation speed
              break;
-	 case 65: // A for changing aspect ratio - We should put this behind the backdoor menu
-	     if (aspect_ratio == 1.1) { 
-		aspect_ratio = 1.6; 
-	     } else {
+	       case 65: // A for changing aspect ratio - We should put this behind the backdoor menu
+	        if (aspect_ratio == 1.1) { 
+		          aspect_ratio = 1.6; 
+	            } else {
                 aspect_ratio = 1.1;
-	     }     
-	     break;
+	            }     
+	         break;
          case 72: // H key or Home button - should reset the functionality, also may use as a start of backdoor menu?
              debugOut.push('Home Key Pressed');
              break;
-         case ENTER: // Enter key
-             inMenu = true; // Enter the menu
-             break;
      }
- }}
-
-
- function executeMenuOption(option) {
-  switch (option) {
-      case 'kaleidoscope':
-          // Code to start the kaleidoscope sketch
-          inMenu = false; // Exit the menu
-          break;
-          case 'ToggleAspect':
-            // Change aspect ratio
-            if (aspect_ratio === 1.1) {
-                aspect_ratio = 1.6;
-            } else {
-                aspect_ratio = 1.1;
-            }
-            debugOut.push(`Aspect ratio changed to: ${aspect_ratio}`);
-            inMenu = false; // Exit the menu
-            break;
-          case 'option3':
-            // Load the draw sketch from drawSketch.js
-            loadDrawSketch();
-            inMenu = false; // Exit the menu
-            break;
-
-      default:
-          // Handle unknown options
-          console.log("Unknown option selected");
-          break;
-  }
-}
+ }
 
 
 function loadDrawSketch() {
@@ -386,26 +315,6 @@ function loadDrawSketch() {
 // This event may be handy when coding things like base movement in space invaders
 function keyReleased() {
      debugOut.push(`Key Released: ${keyCode}`); // Explain why capture fails
-}
-
-function mapButtontoJSKey(pressed, num) {
-      switch(num) {
-        case 0: keyCode = 72; break; // ASCII for 'H' - home button
-        case 1: keyCode = RIGHT_ARROW; break; 
-        case 2: keyCode = UP_ARROW; break; 
-        case 3: keyCode = DOWN_ARROW; break; 
-        case 4: keyCode = LEFT_ARROW; break;
-      }
-	
-      debugOut.push(`Sending code ${keyCode}, num was ${num}`);
-
-      // Send Key event
-      if (pressed == true) {
-         keyPressed();
-      } else {
-         keyReleased();
-      }
-      debugOut.push(`Sent.`);
 }
 
 function detectBeat() {
@@ -438,38 +347,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Assuming your server is running on the same host and port 3000
 
     debugOut.push('DOMContentLoaded');
-
-    const ws = new WebSocket('ws://localhost:3000');
-
-    ws.onopen = () => {
-        debugOut.push("WebSocket connection established");
-    };
-
-    ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        // Assuming the server sends a message that looks like { buttonPressed: 1 } or { buttonPressed: 0 }
-	debugOut.push(`Button ${data.buttonNum} was pressed. Value: ${data.buttonPressed}`);
-        if (data.hasOwnProperty('buttonPressed')) {
-           let buttonNum = data.buttonNum;
-           let buttonStatus = data.buttonPressed;
-           if (buttonNum >= 0 && buttonNum < 5) { // Ensure buttonNum is between 0 and 4
-              if (buttonStatus == true) {
-                  buttonsStatus |= (1 << buttonNum); // Set the bit corresponding to buttonNum
- 	          mapButtontoJSKey(true, buttonNum); // Notify Key Pressed
-              } else {
-                  buttonsStatus &= ~(1 << buttonNum); // Clear the bit corresponding to buttonNum
- 	          mapButtontoJSKey(false, buttonNum); // Notify Key Released
-              }
-           }
-        }
-    };
-
-    ws.onerror = (error) => {
-        debugOut.push(`WebSocket error: ${error.message}`);
-    };
-
-    ws.onclose = (event) => {
-         debugOut.push(`WebSocket closed: Code=${event.code}, Reason=${event.reason}`);
-    };
-    
+     // Assuming ButtonsMenu.js exports a default function or class
+    import('./ButtonsMenu.js').then(module => {
+      ButtonsMenu = module.default;
+      // Now you can use ButtonsMenu
+      ButtonsMenu.btnConnectWebSockets();
+    }).catch(error => {
+      console.error("Failed to load ButtonsMenu.js", error);
+    });
 });

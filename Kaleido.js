@@ -11,7 +11,8 @@
 
  console.log('Kaleido:');
 
-import { getPeak, isBeatDetected } from './sharedState.js';
+import { getPeak, isBeatDetected, setPeak, setBeatDetect } from './sharedState.js';
+import { debugOut } from './debugOut.js'
 
 // Define global variables for menu navigation
 let menuOptions = ['kaleidoscope', 'ToggleAspect', 'option3']; // Update with your menu options
@@ -31,7 +32,7 @@ let inMenu = true; // Flag to indicate whether the user is currently in the menu
  let aspect_ratio = 1.6; // Stretch factor when projecting at 40 degrees
  let slice;
  let buttonsStatus = 0
- const debugLines = 5;
+
 
  // variables reqd by p5, but no longer in context
  let cnv; // canvas
@@ -45,7 +46,7 @@ function preload() {
     sound = loadSound('sounds/ping.mp3');
 }
 
-export const Kaleido = {
+/*export const Kaleido = {
     setup(p, sharedAudioContext) {
         console.log('kaleido:setup() called');
   
@@ -102,6 +103,7 @@ export const Kaleido = {
         let buttonStateBinary = buttonBits.toString(2).padStart(5, '0');
     
         // Display FPS and button state
+        let peak = getPeak();
         p.textGraphics.text(`FPS:${p.frameRate().toFixed(0)} BTNs:${buttonStateBinary} P:${peak.toFixed(2)}`, 10, 15);    
     
         // Ourput Debug
@@ -116,13 +118,13 @@ export const Kaleido = {
         }
     
         // Draw the 2D graphics buffer onto the main canvas
-        p.image(textGraphics, -cWidth / 2, -cHeight / 2);
+        p.image(p.textGraphics, -cWidth / 2, -cHeight / 2);
     
          if (capture.loadedmetadata == true) {
                  //background(0); // black background
-                 selection_mask.arc(0, 0, 2 * w, 2 * h, 0, radians(370 / totalSlices + .1)); //adding a little extra to hide edges
-                 var wRatio = float(cWidth - w) / float(width);
-                 var hRatio = float(cHeight - h) / float(height);
+                 selection_mask.arc(0, 0, 2 * w, 2 * h, 0, p.radians(370 / totalSlices + .1)); //adding a little extra to hide edges
+                 var wRatio = p.float(cWidth - w) / p.float(p.width);
+                 var hRatio = p.float(cHeight - h) / p.float(p.height);
     
                  // Ensure capture is ready and dimensions are valid
                 if (capture.elt.readyState === capture.elt.HAVE_ENOUGH_DATA && w > 0 && h > 0) {
@@ -138,18 +140,19 @@ export const Kaleido = {
                  p.scale(scaleAmt);
                  //apply slice in a circle
                  p.scale(aspect_ratio, 1.0);  // Increase to stretch more horizontally
-                 p.rotate(radians(offsetAngle));
+                 p.rotate(p.radians(offsetAngle));
 
                 // init sound detect from shared state
                  let beatDetected = isBeatDetected();
                  let peak = getPeak();
 
-                 for (k = 0; k <= totalSlices; k++) {
-                     p.rotate(k * radians(360 / (totalSlices / 2)));
+                 for (let k = 0; k <= totalSlices; k++) {
+                     p.rotate(k * p.radians(360 / (totalSlices / 2)));
     
-                p.blendMode(BLEND);
+                p.blendMode(p.BLEND);
                 p.image(slice, 0, 0);
-                p.scale(-1.0, 1.0); image(slice, 0, 0);
+                p.scale(-1.0, 1.0); 
+                p.image(slice, 0, 0);
                 p.scale(-1.0, 1.0);
     
                 // Beat detection
@@ -174,58 +177,8 @@ export const Kaleido = {
          p.pop();
          console.log('kaleido:draw() complete');
     }
-  };
+  };*/
   
-
-class DebugStringQueue {
-  constructor(logFilePath) {
-    this.queue = [];
-    this.capacity = debugLines; // Maximum number of strings in the queue
-    this.logFilePath = logFilePath; // Path to the logfile
-    this.pusheditems = 0;
-  }
-
-  // Method to add a new string to the queue
-  push(newString) {
-    // Check if the queue has reached its capacity
-    if (this.queue.length > this.capacity) {
-        // Remove the oldest string (first element)
-        this.queue.shift();
-    }
-    // Increment the count of pushed items
-    this.pusheditems++;
-    // Add the new string to the end of the queue, prefixed with its push order
-    this.queue.push(`${this.pusheditems}) ${newString}`);
-    console.log(newString);
-
-    // Append the new string to the logfile
-    // this.appendStringToLogFile(newString);
-  }
-
-  // Method to get the current state of the queue
-  getQueue() {
-    return this.queue;
-  }
-
-  getCount() {
-    return this.queue.length;
-  }
-  
-  appendStringToLogFile(string) {
-    // Ensure the string ends with a newline for readability in the log file
-   console.log(string);
-  }
-
-  // Method to access a string by its ordinal (index)
-  getByIndex(index) {
-    if (index >= 0 && index < this.queue.length) {
-      return this.queue[index];
-    }
-    return null; // Return null if the index is out of bounds
-  }
-}
-
-const debugOut = new DebugStringQueue('./sauronDebug'); // Sadly can't create files in static js :(
 
 function enterFullscreen() {
    if (document.documentElement.requestFullscreen) {
@@ -246,7 +199,7 @@ function enterFullscreen() {
 const debugFontSize = 22;
  
  
- /*function setup(sharedAudioContext) {
+ function setup(sharedAudioContext) {
      debugOut.push('setup');
 
      cnv = createCanvas(cWidth, cHeight);
@@ -280,7 +233,7 @@ const debugFontSize = 22;
     if (sharedAudioContext) { audioContext = sharedAudioContext; }
 
      debugOut.push('setup complete')
- }*/
+ }
 
 // Hack function on Mac to initialize or resume the AudioContext after chrome suspends
 function initOrResumeAudioContext() {
@@ -315,7 +268,7 @@ document.addEventListener('keydown', (event) => {
     ShowMenu();
  }
  
- /*function draw() {
+ function draw() {
 
     background(0); // black background
 
@@ -393,7 +346,7 @@ document.addEventListener('keydown', (event) => {
           background(255,0,0); // Set background to red to indicate capture fail...
      }
      pop();
- }*/
+ }
 
 
  function ShowMenu()
