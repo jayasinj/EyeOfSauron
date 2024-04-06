@@ -42,53 +42,68 @@ function broadcastButtonEvent(buttonNum,value) {
       });
 }
 
+// Debounce function
+function debounce(func, wait) {
+  let timeout;
+  return function() {
+    const context = this, args = arguments;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), wait);
+  };
+}
+
+let buttonStates = {};
+
 // Map 5 buttons
 function setupGPIO() {
   if (os.platform() === 'linux') {
     console.log('Setting up 5 r-pi buttons');
     const Gpio = require('onoff').Gpio;
-    const button0 = new Gpio(21, 'in', 'both', { activeLow:true}); // Use GPIO pin 21 as input
-    const button1 = new Gpio(20, 'in', 'both', { activeLow:true}); // Use GPIO pin 20 as input
-    const button2 = new Gpio(26, 'in', 'both', { activeLow:true}); // Use GPIO pin 26 as input
-    const button3 = new Gpio(16, 'in', 'both', { activeLow:true}); // Use GPIO pin 16 as input
-    const button4 = new Gpio(19, 'in', 'both', { activeLow:true}); // Use GPIO pin 19 as input
+    const debounceTime = 75; // 75 ms debounce period
 
-    console.log('button0');
-    button0.watch((err, value) => {
-      if (err) { console.error('There was an error', err); return; }
-      broadcastButtonEvent(0,value);
-    });
+    const buttons = [
+      new Gpio(21, 'in', 'both', { activeLow: true }),
+      new Gpio(20, 'in', 'both', { activeLow: true }),
+      new Gpio(26, 'in', 'both', { activeLow: true }),
+      new Gpio(16, 'in', 'both', { activeLow: true }),
+      new Gpio(19, 'in', 'both', { activeLow: true })
+    ];
 
-    console.log('button1');
-    button1.watch((err, value) => {
-      if (err) { console.error('There was an error', err); return; }
-      broadcastButtonEvent(1,value);
-    });
+    buttons.forEach((button, index) => {
+      // Initialize the state as null or a known default
+      buttonStates[index] = 0;
+    
+      button.watch((err, value) => {
+        if (err) {
+          console.error('There was an error', err);
+          return;
+        }
 
-    console.log('button2');
-    button2.watch((err, value) => {
-      if (err) { console.error('There was an error', err); return; }
-      broadcastButtonEvent(2,value);
+        console.log(`State change detected for button ${index}, new value: ${value}`);
+    
+        // Check if the state has changed
+        if (buttonStates[index] !== value) {
+          // State has changed, update the stored state
+          buttonStates[index] = value;
+    
+          console.log(`State change detected for button ${index}, new value: ${value}`);
+          // Now, value == 0 indicates a transition to pressed (if activeLow is true)
+          // and value == 1 indicates a transition to released (if activeLow is true)
+          if (value === 1) {
+            console.log(`Button ${index} was pressed`);
+          } else {
+            console.log(`Button ${index} was released`);
+          }
+    
+          // Proceed with your broadcast or handling function
+          broadcastButtonEvent(index, value);
+        }
+      });
     });
-
-    console.log('button3');
-    button3.watch((err, value) => {
-      if (err) { console.error('There was an error', err); return; }
-      broadcastButtonEvent(3,value);
-    });
-
-    console.log('button4');
-    button4.watch((err, value) => {
-      if (err) { console.error('There was an error', err); return; }
-      broadcastButtonEvent(4,value);
-    });
+    
 
     process.on('SIGINT', _ => {
-      button0.unexport();
-      button1.unexport();
-      button2.unexport();
-      button3.unexport();
-      button4.unexport();
+      buttons.forEach(button => { button.unexport(); });
     });
   } else {
     console.log('GPIO not supported on this platform. Skipping GPIO setup.');
@@ -125,4 +140,9 @@ console.log('Starting HTTP server')
 server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
   console.log('Started WebSocket Server');
+});
+
+// Handle HTTP server errors
+server.on('error', function error(err) {
+  console.error(`HTTP server error: ${err}`);
 });

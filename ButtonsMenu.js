@@ -33,13 +33,14 @@ const ButtonsMenu = {
     },
 
     mapButtontoJSKey: function(pressed, num) {
-        let keyCode;
+        //let keyCode; - keyCode must be defined in the container app
+	console.log(`mapButtontoJSKey ${pressed} $(num)`)
         switch(num) {
-            case 0: keyCode = 72; break; // ASCII for 'H' - home button
-            case 1: keyCode = 'RIGHT_ARROW'; break;
-            case 2: keyCode = 'UP_ARROW'; break;
-            case 3: keyCode = 'DOWN_ARROW'; break;
-            case 4: keyCode = 'LEFT_ARROW'; break;
+            case 0: keyCode = 13; break; // ASCII for Enter - home button
+            case 1: keyCode = RIGHT_ARROW; break;
+            case 2: keyCode = UP_ARROW; break;
+            case 3: keyCode = DOWN_ARROW; break;
+            case 4: keyCode = LEFT_ARROW; break;
             default: console.log('Invalid button number');
         }
     
@@ -48,6 +49,13 @@ const ButtonsMenu = {
         // Implementation for handling the key press event
         // Note: keyPressed() and keyReleased() must be handled in the p5.js sketch
         // This function can trigger custom events or directly interact with the p5.js sketch if necessary
+              // Send Key event
+        if (pressed == true) {
+            keyPressed();
+        } else {
+            keyReleased();
+        }
+        debugOut.push(`Sent.`);
     },
 
     ShowMenu: function() {

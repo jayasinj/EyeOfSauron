@@ -524,7 +524,7 @@ function preload() {
 function setup() {
 	theme_Color = color(0, 255, 0);
 	
-	createCanvas(600, 450);//600, 450
+	createCanvas(1024, 600);//600, 450
 	
   tint(theme_Color);
 	background(0);
@@ -730,7 +730,7 @@ function keyPressed() {
 	if (keyCode == RIGHT_ARROW) {
 		RIGHT_K = true;
 	}
-	if (key == ' ') {
+	if (keyCode == ' ' || keyCode == UP_ARROW || keyCode == DOWN_ARROW ) {
 		SPACE_K = true;
 		//if (bullet_Visible == false) {
 			//bullet_X = shooter + shooter_img.width / 2;
@@ -750,7 +750,7 @@ function keyReleased() {
 	if (keyCode == RIGHT_ARROW) {
 		RIGHT_K = false;
 	}
-	if (key == ' ') {
+	if (keyCode == ' '|| keyCode == UP_ARROW || keyCode == DOWN_ARROW ) {
 		SPACE_K = false;
 	}
 }
