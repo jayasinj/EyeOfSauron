@@ -21,7 +21,7 @@
  let w,h;
  const aspect_stretch = 1.6;
  const aspect_normal = 1.1;
- let aspect_ratio = 1.6; // Stretch factor when projecting at 40 degrees
+ let aspect_ratio = aspect_stretch; // Stretch factor when projecting at 40 degrees
  let slice;
  let buttonsStatus = 0
  const debugLines = 5;
@@ -109,7 +109,7 @@ function enterFullscreen() {
  }
 
 const debugFontSize = 22;
-let fsButton;
+//let fsButton;
  
  function setup() {
      debugOut.push('setup');
@@ -124,9 +124,10 @@ let fsButton;
      capture = createCapture(VIDEO);
      capture.hide();
      //fullscreen(true);
-     background(0,0,64); // Flash green set up background
-     fsButton = createButton('Toggle Fullscreen');
-     fsButton.mousePressed(toggleFullscreen);
+     background(0,0,0); // Flash green set up background
+     //fsButton = createButton('Toggle Fullscreen');
+     //fsButton.mousePressed(toggleFullscreen);
+     //if (debugOn === false) fsButton.hide();
      w = int(cWidth / 3.7); //3.2 -  Changed to ensure that the image mostly fills 1440 x 1024 window on both R-pi & Mac
      h = int(cHeight / 3.1); //3.2
      selection_mask = createGraphics(w, h); //creates an off screen renderer
@@ -176,7 +177,7 @@ let fsButton;
 
   if (ButtonsMenu) { if (ButtonsMenu.ShowMenu()) return; } // check to display menu
  
-  background(0); // black background
+  background(0,0,0); // black background
 
   push();
   translate(cWidth / 2, cHeight /2);
@@ -222,7 +223,7 @@ let fsButton;
           }
 
             //translate(width / 8, height / 4);
-            var scaleAmt = 1.15; // overall size
+            var scaleAmt = 1.16; // overall size
             scale(scaleAmt);
             //apply slice in a circle
             scale(aspect_ratio, 1.0);  // Increase to stretch more horizontally
@@ -369,8 +370,8 @@ document.addEventListener('DOMContentLoaded', () => {
       // setup up persistant cookies
       debugCookie = ButtonsMenu.getCookieValue("Debug");
       console.log(`debugCookie = ${debugCookie}`);
-      if (debugCookie === '1' || debugCookie === "") { debugOn = true; fsButton.show(); }
-      else { debugOn = false; fsButton.hide(); }
+      if (debugCookie === '1' || debugCookie === "") { debugOn = true; /*if (fsButton) fsButton.show();*/ }
+      else { debugOn = false; /*if (fsButton) fsButton.hide();*/ }
 
       AspectCookie = ButtonsMenu.getCookieValue("AspectStretch");
       console.log(`debugCookie = ${AspectCookie}`);

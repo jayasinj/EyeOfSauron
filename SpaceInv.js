@@ -150,10 +150,10 @@ function initBarriers() {
 }
 function drawBarrier(x, y, barrier) {
   noStroke();
-  for (var i = 0; i < 18; i++) {
+  fill(theme_Color);
+  for (var i = 6; i < 18; i++) {
     for (var j = 0; j < 24; j++) {
       if (getBit(i, j, barrier)) {
-        fill(theme_Color);
         rect((j * B_pixels) + x, (i * B_pixels) + y, B_pixels, B_pixels);
       }
     }
@@ -366,6 +366,7 @@ function toggle_invaders() {
 }
 
 function refresh_invaders(x, y) {
+	fill(0,64,0);
 	for (var i = 0; i < invaders.length; i++) {
 		for (var j = 0; j < invaders[i].length; j++) {
 			if (invaders[i][j] != -1) {
@@ -373,7 +374,6 @@ function refresh_invaders(x, y) {
 				//print(invaders[i][j]);
 				var X = x + j * 30 + ((24 - aliens[index].width) / 2);
 				var Y = y + i * 30;
-				fill(0);
 				rect(X, Y, aliens[index].width, aliens[index].height);
 				image(aliens[index], X, Y);
 			}
@@ -549,7 +549,7 @@ function preload() {
 
 function setup() {
 	theme_Color = color(0, 255, 0);
-	frameRate(30);
+	frameRate(25);
 	
 	createCanvas(1280, 1024);//600, 450
 	invWidth = 1280 / 2;
@@ -570,22 +570,28 @@ function setup() {
 }
 
 let tintIndexdex = 0;
+last_time = 0;
 function logTime() {
 	tIndex++;
 	ms_time = Date.now();
-	console.log(`${tIndex}: ${ms_time}`);
+	if (last_time === 0) last_time = ms_time;
+	var diff = ms_time - last_time;
+	console.log(`${tIndex}: ${diff}`);
+	last_time = ms_time;
 }
 
+let millis_last = 0;
+
 function draw() {
-	scale(2,1.5);
 	tIndex = 0;
 
-	//logTime();
 
 	if (ButtonsMenu) { if (ButtonsMenu.ShowMenu()) return; } // check to display menu
-	console.log(new Date().getTime());
+	//console.log(new Date().getTime());
 
-	//logTime();
+	push();
+	scale(2,1.5);
+
 	
 	if (!ship_visible) {
 		if (millis() > ship_preMillis + ship_random_time) {
@@ -606,7 +612,6 @@ function draw() {
 		}
 	}
 
-	//logTime();
 
 	if (ship_visible) {
 		ship_X += ship_direction * 2;
@@ -629,7 +634,6 @@ function draw() {
 		}
 	}
 
-	//logTime();
 
 	if (ship_X < 0 - 100) {
 		ship_visible = false;
@@ -649,11 +653,11 @@ function draw() {
 				invMove.stop();
 			 }
 			 invKilled.play();
+			pop();
 			return;
 		}
 	}
 
-	//logTime();
 	
 	if (LEFT_K && !kill_life) {
 		shooter = constrain(shooter - 6, 0, invWidth);
@@ -680,7 +684,6 @@ function draw() {
 	if (bullet_Y < 0) {
 		bullet_Visible = false;
 	}
-	//logTime();
 	//println(kill_life);
 	if (SPACE_K && !bullet_Visible && !kill_life) {
 		//println(kill_life);
@@ -704,7 +707,6 @@ function draw() {
 		}
 	}
 
-	//logTime();
 	
 	fill(theme_Color);
 	tint(theme_Color);
@@ -721,9 +723,7 @@ function draw() {
 		}
 	}
 	rect(0, invHeight - 2, invWidth - 1, 2);
-	fill(255);
-	//logTime();
-  drawBarriers();
+  	drawBarriers();
 	
 	if (bullet_Visible && barrierShotAt(bullet_X, bullet_Y)) {
 		bullet_Visible = false;
@@ -741,12 +741,15 @@ function draw() {
 			kill_life = true;
 		}
 	
-		//logTime();
 	
 	tint(255);
-	//console.log('refresh invaders');
-	refresh_invaders(invaders_x, invaders_y);
-	//logTime();
+	refreshInt = millis() - millis_last;
+	console.log(refreshInt);
+	if (refreshInt > 10) { // Jon - throttled this, chewing up too much CPU
+		console.log('refresh invaders');
+		refresh_invaders(invaders_x, invaders_y);
+		millis_last = millis();
+	}
 	
 	if (millis() - invaders_preTime > invaders_Time_Toggle) {
 		toggle_invaders();
@@ -755,7 +758,6 @@ function draw() {
 	
 	tint(theme_Color);
 	
-	//logTime();
 	setTextColor(color(255));
 	setTextSize(2);
 	var n = score.toString();
@@ -778,7 +780,6 @@ function draw() {
 	
 	//Pixel_text("SCORE: ", 2, 2);
 	//Pixel_text(n, 2, 2);
-	//logTime();
 	
 	if (lives <= 0) {
 		//lives--;
@@ -786,7 +787,7 @@ function draw() {
 		setCursor((invWidth - 108) / 2, (invHeight - 20) / 2);
 		Print("GAME OVER");
 	}
-	//logTime();
+	pop();
 }
 function keyPressed() {
 	if (ButtonsMenu) { if (ButtonsMenu.menuKeyPressed(keyCode)) return; } // Give menu a change to capture
