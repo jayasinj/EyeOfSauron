@@ -539,9 +539,22 @@ function setup() {
 	ship_preMillis = millis();
 }
 
+let tintIndexdex = 0;
+function logTime() {
+	tIndex++;
+	ms_time = Date.now();
+	console.log(`${tIndex}: ${ms_time}`);
+}
+
 function draw() {
+	tIndex = 0;
+
+	logTime();
 
 	if (ButtonsMenu) { if (ButtonsMenu.ShowMenu()) return; } // check to display menu
+	console.log(new Date().getTime());
+
+	logTime();
 	
 	if (!ship_visible) {
 		if (millis() > ship_preMillis + ship_random_time) {
@@ -560,6 +573,9 @@ function draw() {
 			}
 		}
 	}
+
+	logTime();
+
 	if (ship_visible) {
 		ship_X += ship_direction * 2;
 		
@@ -580,6 +596,9 @@ function draw() {
 			}
 		}
 	}
+
+	logTime();
+
 	if (ship_X < 0 - 100) {
 		ship_visible = false;
 	}
@@ -596,6 +615,8 @@ function draw() {
 			return;
 		}
 	}
+
+	logTime();
 	
 	if (LEFT_K && !kill_life) {
 		shooter = constrain(shooter - 6, 0, width);
@@ -622,6 +643,7 @@ function draw() {
 	if (bullet_Y < 0) {
 		bullet_Visible = false;
 	}
+	logTime();
 	//println(kill_life);
 	if (SPACE_K && !bullet_Visible && !kill_life) {
 		//println(kill_life);
@@ -644,6 +666,8 @@ function draw() {
 			points_earned = -1;
 		}
 	}
+
+	logTime();
 	
 	fill(theme_Color);
 	tint(theme_Color);
@@ -661,6 +685,7 @@ function draw() {
 	}
 	rect(0, height - 2, width - 1, 2);
 	fill(255);
+	logTime();
   drawBarriers();
 	
 	if (bullet_Visible && barrierShotAt(bullet_X, bullet_Y)) {
@@ -679,9 +704,11 @@ function draw() {
 			kill_life = true;
 		}
 	
+		logTime();
 	
 	tint(255);
 	refresh_invaders(invaders_x, invaders_y);
+	logTime();
 	
 	if (millis() - invaders_preTime > invaders_Time_Toggle) {
 		toggle_invaders();
@@ -690,7 +717,7 @@ function draw() {
 	
 	tint(theme_Color);
 	
-	
+	logTime();
 	setTextColor(color(255));
 	setTextSize(2);
 	var n = score.toString();
@@ -712,7 +739,7 @@ function draw() {
 	
 	//Pixel_text("SCORE: ", 2, 2);
 	//Pixel_text(n, 2, 2);
-	
+	logTime();
 	
 	if (lives <= 0) {
 		//lives--;
@@ -720,6 +747,7 @@ function draw() {
 		setCursor((width - 108) / 2, (height - 20) / 2);
 		Print("GAME OVER");
 	}
+	logTime();
 }
 function keyPressed() {
 	if (ButtonsMenu) { if (ButtonsMenu.menuKeyPressed(keyCode)) return; } // Give menu a change to capture

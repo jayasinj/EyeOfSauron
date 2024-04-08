@@ -143,20 +143,21 @@ const debugFontSize = 22;
      // Setup audio
      audioContext = new (window.AudioContext || window.webkitAudioContext)();
      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-           navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(function (stream) {
-                    microphoneStream = audioContext.createMediaStreamSource(stream);
-                    analyser = audioContext.createAnalyser();
-                    analyser.fftSize = bufferSize * 2;
-                    microphoneStream.connect(analyser);
-                    detectBeat();
-            })
-            .catch(function (err) {
-                   debugOut.push('Error accessing microphone:', err);
-            });
-        } else {
-           debugOut.push('getUserMedia not supported in this browser.');
-        }
+         navigator.mediaDevices.getUserMedia({ audio: true })
+             .then(function(stream) {
+                 microphoneStream = audioContext.createMediaStreamSource(stream);
+                 analyser = audioContext.createAnalyser();
+                 analyser.fftSize = bufferSize * 2;
+                 microphoneStream.connect(analyser);
+                 detectBeat();
+             })
+             .catch(function(err) {
+                 debugOut.push('Error accessing microphone: ' + err);
+             });
+     } else {
+         debugOut.push('getUserMedia not supported in this browser.');
+     }
+     
 
      debugOut.push('setup complete')
  }
@@ -267,6 +268,8 @@ dstring = debugOut.getByIndex(i);
      //console.log(ButtonsMenu)
      if (ButtonsMenu) { if (ButtonsMenu.menuKeyPressed(keyCode)) return; } // Give menu a change to capture
 
+     console.log(`keyPressed, code: ${keyCode}`);
+
      switch (keyCode) {
          case 38: //up arrow
              totalSlices = (totalSlices + 4) % 64;
@@ -322,10 +325,10 @@ function detectBeat() {
     peak = getPeak(buffer);
     //debugOut.push(`Peak: ${peak.toFixed(4)}`);
     if (peak > 0.1 && !beatDetected) {
-	console.log('Beat detected!');
+	//console.log('Beat detected!');
 	beatDetected = true;
 	setTimeout(resetBeatDetection, 50); // Reset beat detection after 1/10 second
-        debugOut.push(`Beat, Peak: ${peak.toFixed(4)}`);
+        //debugOut.push(`Beat, Peak: ${peak.toFixed(4)}`);
     }
     requestAnimationFrame(detectBeat);
 }
