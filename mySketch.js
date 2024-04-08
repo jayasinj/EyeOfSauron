@@ -19,6 +19,8 @@
  let offsetAngleSpeed = 1.0; // Initial rotation speed
  let selectionmask;
  let w,h;
+ const aspect_stretch = 1.6;
+ const aspect_normal = 1.1;
  let aspect_ratio = 1.6; // Stretch factor when projecting at 40 degrees
  let slice;
  let buttonsStatus = 0
@@ -107,7 +109,7 @@ function enterFullscreen() {
  }
 
 const debugFontSize = 22;
- 
+let fsButton;
  
  function setup() {
      debugOut.push('setup');
@@ -123,7 +125,7 @@ const debugFontSize = 22;
      capture.hide();
      //fullscreen(true);
      background(0,0,64); // Flash green set up background
-     let fsButton = createButton('Toggle Fullscreen');
+     fsButton = createButton('Toggle Fullscreen');
      fsButton.mousePressed(toggleFullscreen);
      w = int(cWidth / 3.7); //3.2 -  Changed to ensure that the image mostly fills 1440 x 1024 window on both R-pi & Mac
      h = int(cHeight / 3.1); //3.2
@@ -166,6 +168,9 @@ const debugFontSize = 22;
    let fs = fullscreen();
    fullscreen(!fs);
  }
+
+ let waitEllipse = 0;
+ let debugOn = true;
  
  function draw() {
 
@@ -176,27 +181,30 @@ const debugFontSize = 22;
   push();
   translate(cWidth / 2, cHeight /2);
 
-  // Output FPS Count
-  textGraphics.clear(); // Clear previous frame text
-  buttonBits = buttonsStatus & 0b11111;
-  buttonStateBinary = buttonBits.toString(2).padStart(5, '0');
+  if (debugOn) {
 
-  // Display FPS and button state
-  textGraphics.text(`FPS:${frameRate().toFixed(0)} BTNs:${buttonStateBinary} P:${peak.toFixed(2)}`, 10, 15);    
+    // Output FPS Count
+    textGraphics.clear(); // Clear previous frame text
+    buttonBits = buttonsStatus & 0b11111;
+    buttonStateBinary = buttonBits.toString(2).padStart(5, '0');
 
-  // Ourput Debug
-  for(let i = 0; i < debugOut.getCount(); i++) { 
-      let dstring;
-dstring = debugOut.getByIndex(i);
-      if (dstring != null) {
-    textGraphics.text(dstring, 10, 18 + debugFontSize * (i+1));
-      } else {
-    textGraphics.text(".", 10, 18 + debugFontSize * (i+1));
-}
-  }
+    // Display FPS and button state
+    textGraphics.text(`FPS:${frameRate().toFixed(0)} BTNs:${buttonStateBinary} P:${peak.toFixed(2)}`, 10, 15);    
 
-  // Draw the 2D graphics buffer onto the main canvas
-  image(textGraphics, -cWidth / 2, -cHeight / 2);
+    // Ourput Debug
+    for(let i = 0; i < debugOut.getCount(); i++) { 
+        let dstring;
+          dstring = debugOut.getByIndex(i);
+                if (dstring != null) {
+              textGraphics.text(dstring, 10, 18 + debugFontSize * (i+1));
+                } else {
+              textGraphics.text(".", 10, 18 + debugFontSize * (i+1));
+          }
+    }
+
+    // Draw the 2D graphics buffer onto the main canvas
+    image(textGraphics, -cWidth / 2, -cHeight / 2);
+  } // end debug section
 
     if (capture.loadedmetadata == true) {
             //background(0); // black background
@@ -243,14 +251,17 @@ dstring = debugOut.getByIndex(i);
         resetMatrix();
         selection_mask.clear();
     } else {
-  // debugOut.push('capture failed'); - We get a number of these in startup
+      pop(); // get rid of translate
+      // debugOut.push('capture failed'); - We get a number of these in startup
       // console.log(capture.loadmetadata); // Explain why capture fails
-        background(255,0,0); // Set background to red to indicate capture fail...
+        background(64,0,0); // Set background to red to indicate capture fail...
+        fill(128,0,0);
+        waitEllipse++;
+        ellipse(width / 2, height / 2, waitEllipse, waitEllipse);
+        if (waitEllipse>(height/2)) waitEllipse = 0;
+        return; // don't pop twice!
     }
-
-
     pop();
-
   }
 
 
@@ -260,10 +271,9 @@ dstring = debugOut.getByIndex(i);
      if (sound.isPlaying()) {
         // If the sound is already playing, stop it
         sound.stop();
-     } else {
-        // Otherwise, play the sound
-        sound.play();
      }
+     sound.play();
+     
 
      //console.log(ButtonsMenu)
      if (ButtonsMenu) { if (ButtonsMenu.menuKeyPressed(keyCode)) return; } // Give menu a change to capture
@@ -355,6 +365,17 @@ document.addEventListener('DOMContentLoaded', () => {
       ButtonsMenu = module.default;
       // Now you can use ButtonsMenu
       ButtonsMenu.btnConnectWebSockets();
+
+      // setup up persistant cookies
+      debugCookie = ButtonsMenu.getCookieValue("Debug");
+      console.log(`debugCookie = ${debugCookie}`);
+      if (debugCookie === '1' || debugCookie === "") { debugOn = true; fsButton.show(); }
+      else { debugOn = false; fsButton.hide(); }
+
+      AspectCookie = ButtonsMenu.getCookieValue("AspectStretch");
+      console.log(`debugCookie = ${AspectCookie}`);
+      if (AspectCookie === '1' || AspectCookie === "") aspect_ratio = aspect_stretch;
+      else aspect_ratio = aspect_normal;
     }).catch(error => {
       console.error("Failed to load ButtonsMenu.js", error);
     });
