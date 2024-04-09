@@ -367,11 +367,14 @@ function toggle_invaders() {
 	}
 }
 
+let invadersLeft = 1;
+
 function update_offscreen_invaders(offset) {
 	var x = 0;
 	var y = 0;
 	offScreenInv[offset].fill(0);
 	offScreenInv[offset].background(0);
+	invadersLeft = 0;
 	for (var i = 0; i < invaders.length; i++) {
 			for (var j = 0; j < invaders[i].length; j++) {
 					if (invaders[i][j] != -1) {
@@ -382,6 +385,7 @@ function update_offscreen_invaders(offset) {
 							
 							offScreenInv[offset].rect(X, Y, aliens[index].width, aliens[index].height);
 							offScreenInv[offset].image(aliens[index], X, Y);
+							invadersLeft++;
 					}
 			}
 	}
@@ -614,6 +618,7 @@ function logTime() {
 }
 
 let millis_last = 0;
+let super_bullet = 0;
 
 function draw() {
 	tIndex = 0;
@@ -632,6 +637,7 @@ function draw() {
 			ship_preMillis = millis();
 			ship_visible = true;
 			ufo.play();
+			super_bullet = 0;
 			
 			var ran_val = round(random(0, 1));
 			if (ran_val == 0) {
@@ -662,6 +668,7 @@ function draw() {
 					points_earned_disY = 32;
 				
 					score += points_earned;
+					super_bullet = 1;
 				}
 			}
 		}
@@ -688,8 +695,8 @@ function draw() {
 			 invKilled.play();
 			 update_offscreen_invaders(0);
 			 update_offscreen_invaders(1);
-			pop();
-			return;
+			 pop();
+			 return;
 		}
 	}
 
@@ -728,10 +735,28 @@ function draw() {
 	//tint(theme_Color);
 	//===================================
 	if (bullet_Visible) {
-		fill(255);
+		fill(255,0,0);
 		bullet_Y-=10;
 		noStroke();
 		rect(bullet_X, bullet_Y, 2, 8);
+
+		if (super_bullet) {
+			while(bullet_Y>20) {
+				if (bullet_Visible && barrierShotAt(bullet_X, bullet_Y)) {
+					bullet_Visible = false;
+					eraseSecter(SectorX, SectorY, BarrierHit, 1/4);
+					break;
+				}
+				if (bullet_Visible && invadersShotAt(bullet_X, bullet_Y)) {
+					kill_invader(Index_X, Index_Y);
+					break;
+				}
+				bullet_Y-=10;
+				noStroke();
+				fill(255,0,0);
+				rect(bullet_X, bullet_Y, 2, 8);
+			}
+		}
 	}
 	if (bullet_Y < 0) {
 		bullet_Visible = false;
@@ -837,10 +862,13 @@ function draw() {
 	//Pixel_text("SCORE: ", 2, 2);
 	//Pixel_text(n, 2, 2);
 	
-	if (lives <= 0) {
+	if (lives <= 0 || invadersLeft === 0) {
 		//lives--;
 		background(0);
 		setCursor((invWidth - 108) / 2, (invHeight - 20) / 2);
+		if (invadersLeft === 0) {
+			Print("YOU WON! - Did you discover laser mode?");	
+		}
 		Print("GAME OVER");
 	}
 	pop();
