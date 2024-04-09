@@ -151,10 +151,10 @@ function initBarriers() {
 function drawBarrier(x, y, barrier) {
   noStroke();
   fill(theme_Color);
-  for (var i = 6; i < 18; i++) {
-    for (var j = 0; j < 24; j++) {
+  for (var i = 0; i < 18; i+=2) {
+    for (var j = 0; j < 24; j+=2) {
       if (getBit(i, j, barrier)) {
-        rect((j * B_pixels) + x, (i * B_pixels) + y, B_pixels, B_pixels);
+        rect((j * B_pixels) + x, (i * B_pixels) + y, B_pixels * 2, B_pixels * 2);
       }
     }
   }
@@ -265,6 +265,7 @@ function kill_invader(pointX, pointY) {
 	if (alien == 4) {score += 40;}
 	
 	invaders[pointY][pointX] = 6;
+	update_offscreen_invaders(0); update_offscreen_invaders(1);
 	bullet_Visible = false;
 	Pause = true;
 	prePause = millis();
@@ -365,7 +366,33 @@ function toggle_invaders() {
 	}
 }
 
+function update_offscreen_invaders(offset) {
+	var x = 0;
+	var y = 0;
+	offScreenInv[offset].fill(0);
+	offScreenInv[offset].background(0);
+	for (var i = 0; i < invaders.length; i++) {
+			for (var j = 0; j < invaders[i].length; j++) {
+					if (invaders[i][j] != -1) {
+							var index = constrain(invaders[i][j] + offset, 0, 6);
+							//print(invaders[i][j]);
+							var X = x + j * 30 + ((24 - aliens[index].width) / 2);
+							var Y = y + i * 30;
+							
+							offScreenInv[offset].rect(X, Y, aliens[index].width, aliens[index].height);
+							offScreenInv[offset].image(aliens[index], X, Y);
+					}
+			}
+	}
+}
+	  
+function refresh_invaders(x, y, offset) {
+	console.log(offset);
+	image(offScreenInv[offset], x, y); // Position it at (50, 50) on the main canvas
+}
+/*
 function refresh_invaders(x, y) {
+	fill(0,64,0);
 	fill(0,64,0);
 	for (var i = 0; i < invaders.length; i++) {
 		for (var j = 0; j < invaders[i].length; j++) {
@@ -379,7 +406,7 @@ function refresh_invaders(x, y) {
 			}
 		}
 	}
-}
+}*/
 
 function check_state(index) {//return true when all invaders are dead in that column
 	for (var i = 0; i < 5; i++) {
@@ -545,15 +572,23 @@ function preload() {
 
 }
 
+let offScreenInv = [];
 
 
 function setup() {
 	theme_Color = color(0, 255, 0);
 	frameRate(25);
+	frameRate(25);
 	
 	createCanvas(1280, 1024);//600, 450
 	invWidth = 1280 / 2;
 	invHeight = 1024 / 2;
+
+	// Create Invader Bitmaps
+	offScreenInv[0] = createGraphics(270, 140);
+	offScreenInv[1] = createGraphics(270, 140);
+	update_offscreen_invaders(0);
+	update_offscreen_invaders(1);
 
 	
     tint(theme_Color);
@@ -571,6 +606,7 @@ function setup() {
 
 let tintIndexdex = 0;
 last_time = 0;
+last_time = 0;
 function logTime() {
 	tIndex++;
 	ms_time = Date.now();
@@ -578,7 +614,13 @@ function logTime() {
 	var diff = ms_time - last_time;
 	console.log(`${tIndex}: ${diff}`);
 	last_time = ms_time;
+	if (last_time === 0) last_time = ms_time;
+	var diff = ms_time - last_time;
+	console.log(`${tIndex}: ${diff}`);
+	last_time = ms_time;
 }
+
+let millis_last = 0;
 
 let millis_last = 0;
 
@@ -588,6 +630,10 @@ function draw() {
 
 	if (ButtonsMenu) { if (ButtonsMenu.ShowMenu()) return; } // check to display menu
 	//console.log(new Date().getTime());
+	//console.log(new Date().getTime());
+
+	push();
+	scale(2,1.5);
 
 	push();
 	scale(2,1.5);
@@ -653,6 +699,8 @@ function draw() {
 				invMove.stop();
 			 }
 			 invKilled.play();
+			 update_offscreen_invaders(0);
+			 update_offscreen_invaders(1);
 			pop();
 			return;
 		}
@@ -668,6 +716,23 @@ function draw() {
 	//border(0, color(0, 255, 0));
 	background(0);
 	//border(0, 255);
+
+	// draw Invaders
+	tint(255);
+	refreshInt = millis() - millis_last;
+	console.log(refreshInt);
+	if (refreshInt > 10) { // Jon - throttled this, chewing up too much CPU
+		console.log('refresh invaders');
+		refresh_invaders(invaders_x, invaders_y, int(invaders_offset));
+		millis_last = millis();
+	}
+	
+	if (millis() - invaders_preTime > invaders_Time_Toggle) {
+		toggle_invaders();
+		invaders_preTime = millis();
+	}
+	
+  tint(theme_Color);
 	
 	tint(255);
 	//image(aliens[0], 50, 100);
@@ -708,6 +773,8 @@ function draw() {
 	}
 
 	
+
+	
 	fill(theme_Color);
 	tint(theme_Color);
 	if (!kill_life) {
@@ -724,6 +791,8 @@ function draw() {
 	}
 	rect(0, invHeight - 2, invWidth - 1, 2);
   	drawBarriers();
+
+
 	
 	if (bullet_Visible && barrierShotAt(bullet_X, bullet_Y)) {
 		bullet_Visible = false;
@@ -747,7 +816,7 @@ function draw() {
 	console.log(refreshInt);
 	if (refreshInt > 10) { // Jon - throttled this, chewing up too much CPU
 		console.log('refresh invaders');
-		refresh_invaders(invaders_x, invaders_y);
+		refresh_invaders(invaders_x, invaders_y, int(invaders_offset));
 		millis_last = millis();
 	}
 	
@@ -788,9 +857,12 @@ function draw() {
 		Print("GAME OVER");
 	}
 	pop();
+	pop();
 }
 function keyPressed() {
+	console.log('keyPressed')
 	if (ButtonsMenu) { if (ButtonsMenu.menuKeyPressed(keyCode)) return; } // Give menu a change to capture
+	console.log('InvKeys')
 
 	if (keyCode == LEFT_ARROW) {
 		LEFT_K = true;
