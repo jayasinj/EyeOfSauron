@@ -273,6 +273,7 @@ function kill_invader(pointX, pointY) {
 	Pause_Index_Y = pointY;
 	
 	killed_invaders.push([pointX, pointY, millis()]);
+
 }
 
 function getConstBit(array_index, bit) {
@@ -314,7 +315,7 @@ function eraseSecter(SectorX, SectorY, Barrier, Intensity) {
 	var amount = getSetConstBits(SectorX, SectorY);
 	
 	var erase_val = round(amount * Intensity);
-	console.log(erase_val);
+	//console.log(erase_val);
 	for (var i = 0; i < erase_val; i++) {
 		getSetBits(SectorX, SectorY, Barrier);
 		
@@ -387,7 +388,6 @@ function update_offscreen_invaders(offset) {
 }
 	  
 function refresh_invaders(x, y, offset) {
-	console.log(offset);
 	image(offScreenInv[offset], x, y); // Position it at (50, 50) on the main canvas
 }
 /*
@@ -609,7 +609,7 @@ function logTime() {
 	ms_time = Date.now();
 	if (last_time === 0) last_time = ms_time;
 	var diff = ms_time - last_time;
-	console.log(`${tIndex}: ${diff}`);
+	//console.log(`${tIndex}: ${diff}`);
 	last_time = ms_time;
 }
 
@@ -707,9 +707,9 @@ function draw() {
 	// draw Invaders
 	tint(255);
 	refreshInt = millis() - millis_last;
-	console.log(refreshInt);
+	//console.log(refreshInt);
 	if (refreshInt > 10) { // Jon - throttled this, chewing up too much CPU
-		console.log('refresh invaders');
+		//console.log('refresh invaders');
 		refresh_invaders(invaders_x, invaders_y, int(invaders_offset));
 		millis_last = millis();
 	}
@@ -719,7 +719,7 @@ function draw() {
 		invaders_preTime = millis();
 	}
 	
-  tint(theme_Color);
+  //tint(theme_Color);
 	
 	tint(255);
 	//image(aliens[0], 50, 100);
@@ -729,7 +729,7 @@ function draw() {
 	//===================================
 	if (bullet_Visible) {
 		fill(255);
-		bullet_Y-=8;
+		bullet_Y-=10;
 		noStroke();
 		rect(bullet_X, bullet_Y, 2, 8);
 	}
@@ -800,9 +800,9 @@ function draw() {
 	
 	tint(255);
 	refreshInt = millis() - millis_last;
-	console.log(refreshInt);
+	//console.log(refreshInt);
 	if (refreshInt > 10) { // Jon - throttled this, chewing up too much CPU
-		console.log('refresh invaders');
+		//console.log('refresh invaders');
 		refresh_invaders(invaders_x, invaders_y, int(invaders_offset));
 		millis_last = millis();
 	}
@@ -846,9 +846,9 @@ function draw() {
 	pop();
 }
 function keyPressed() {
-	console.log('keyPressed')
+	//console.log('keyPressed')
 	if (ButtonsMenu) { if (ButtonsMenu.menuKeyPressed(keyCode)) return; } // Give menu a change to capture
-	console.log('InvKeys')
+	//console.log('InvKeys')
 
 	if (keyCode == LEFT_ARROW) {
 		LEFT_K = true;
