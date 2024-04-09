@@ -393,7 +393,6 @@ function refresh_invaders(x, y, offset) {
 /*
 function refresh_invaders(x, y) {
 	fill(0,64,0);
-	fill(0,64,0);
 	for (var i = 0; i < invaders.length; i++) {
 		for (var j = 0; j < invaders[i].length; j++) {
 			if (invaders[i][j] != -1) {
@@ -578,7 +577,6 @@ let offScreenInv = [];
 function setup() {
 	theme_Color = color(0, 255, 0);
 	frameRate(25);
-	frameRate(25);
 	
 	createCanvas(1280, 1024);//600, 450
 	invWidth = 1280 / 2;
@@ -606,7 +604,6 @@ function setup() {
 
 let tintIndexdex = 0;
 last_time = 0;
-last_time = 0;
 function logTime() {
 	tIndex++;
 	ms_time = Date.now();
@@ -614,13 +611,7 @@ function logTime() {
 	var diff = ms_time - last_time;
 	console.log(`${tIndex}: ${diff}`);
 	last_time = ms_time;
-	if (last_time === 0) last_time = ms_time;
-	var diff = ms_time - last_time;
-	console.log(`${tIndex}: ${diff}`);
-	last_time = ms_time;
 }
-
-let millis_last = 0;
 
 let millis_last = 0;
 
@@ -630,10 +621,6 @@ function draw() {
 
 	if (ButtonsMenu) { if (ButtonsMenu.ShowMenu()) return; } // check to display menu
 	//console.log(new Date().getTime());
-	//console.log(new Date().getTime());
-
-	push();
-	scale(2,1.5);
 
 	push();
 	scale(2,1.5);
@@ -856,7 +843,6 @@ function draw() {
 		setCursor((invWidth - 108) / 2, (invHeight - 20) / 2);
 		Print("GAME OVER");
 	}
-	pop();
 	pop();
 }
 function keyPressed() {

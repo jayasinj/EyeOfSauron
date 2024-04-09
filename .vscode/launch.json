@@ -1,28 +1,29 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
-
-        
-
-        
         {
-            "type": "chrome",
+            "type": "pwa-chrome",
             "request": "launch",
-            "name": "Launch Chrome against localhost",
-            "file": "${workspaceFolder}/launch.html",
-            "url": "http://localhost:8080",
+            "name": "Launch Chrome against localhost with flags",
+            "url": "http://localhost:8000/Launch.html",
             "webRoot": "${workspaceFolder}",
-"sourceMapPathOverrides": {
-    "meteor://💻app/*": "${workspaceFolder}/*",
-    "webpack:///./~/*": "${workspaceFolder}/node_modules/*",
-    "webpack://?:*/*": "${workspaceFolder}/*"
-}
-            
-            //"program": "${workspaceFolder}/mySketch.js"
+            "runtimeExecutable": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "runtimeArgs": [
+                "--remote-debugging-port=9222",
+                "--remote-debugging-address=http://0.0.0.0:9222",
+                "--enable-logging",
+                "--user-data-dir=/Users/jons/EyeOfSauron",
+                "--noerrdialogs",
+                "--disable-infobars",
+                "--kiosk",
+                "--autoplay-policy=no-user-gesture-required",
+                "--use-fake-ui-for-media-stream"
+            ],
+            "sourceMapPathOverrides": {
+                "meteor://💻app/*": "${workspaceFolder}/*",
+                "webpack:///./~/*": "${workspaceFolder}/node_modules/*",
+                "webpack://?:*/*": "${workspaceFolder}/*"
+            }
         }
     ]
 }
