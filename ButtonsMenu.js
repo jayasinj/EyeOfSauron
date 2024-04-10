@@ -173,7 +173,7 @@ const ButtonsMenu = {
                this.inMenu = false; // Exit the menu
                return true;
 
-            case 'HeartBeat': // Nav to the Space Invaders deck as defined in Invaders.html
+            case 'Heartbeat': // Nav to the Space Invaders deck as defined in Invaders.html
               window.location.assign('./Heartbeat.html');
               this.inMenu = false; // Exit the menu
               return true;

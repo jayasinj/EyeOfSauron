@@ -5,7 +5,7 @@ let peakDetect;
 function setup() {
   createCanvas(400, 400);
 
-mic = new p5.AudioIn();
+  mic = new p5.AudioIn();
   mic.start();
 
   fft = new p5.FFT();

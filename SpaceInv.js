@@ -864,12 +864,15 @@ function draw() {
 	
 	if (lives <= 0 || invadersLeft === 0) {
 		//lives--;
-		background(0);
-		setCursor((invWidth - 108) / 2, (invHeight - 20) / 2);
+		background(lives<=0?64:0,lives<=0?0:64,0);
+		textSize(32); // Set the text size
+		c = millis()/4;
+		fill(c%255,(c+64)%255,(c+96)%255); // Set the text color
 		if (invadersLeft === 0) {
-			Print("YOU WON! - Did you discover laser mode?");	
+			text('YOU WON! - Did you find laser mode?', 50, 300); // Draw text at position (50, 100)
+		} else {
+			text('YOU LOST! - [Enter] to replay', 50, 300); // Draw text at position (50, 100)
 		}
-		Print("GAME OVER");
 	}
 	pop();
 }

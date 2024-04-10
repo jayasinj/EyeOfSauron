@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Eye of Sauron</title>
+<script src="p5/p5.js"></script>
+<script src="p5/addons/p5.sound.min.js"></script>
+<script src="./Heartbeat.js"></script>
+<style>
+    body {
+        background-color: black;
+        margin: 0; /* Optional: Remove default margin */
+    }
+    #gif-container img, canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1280px;
+        height: 800px;
+    }
+    #gif-container {
+        position: relative;
+        width: 1280px;
+        height: 800px;
+    }
+</style>
+</head>
+<body>
+    <div id="gif-container">
+        <img id="gif" src="./images/heartbeat.gif" alt="Heartbeat GIF">
+    </div>
+</body>
+</html>
