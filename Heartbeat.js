@@ -19,7 +19,15 @@ let lastx = 0;
 let lastPeak = 0;
 let fadeStartX = -100; // Starting x position for the fade, so it's initially offscreen
 let fadeWidth = 50; // Width of the fading area
-console.log(`fw: ${fadeWidth}`);
+
+let ButtonsMenu; // Dynamic support for menu / mapped buttons
+
+// fake debug out
+const debugOut = {
+	push: function(message) {
+	  console.log(message);
+	}
+  };
 
 function setup() {
     console.log('Heartbead:setup()');
@@ -101,6 +109,9 @@ function draw()
 {
     var h = height /4 ;
     var y = h + peak * 4 * h;
+
+	if (ButtonsMenu) { if (ButtonsMenu.ShowMenu()) return; } // check to display menu
+
     if (beatDetected === true) {
         lastPeak = peak;
     } else {
@@ -143,9 +154,28 @@ function playGif() {
     requestAnimationFrame(playGif);
 }
 
+function keyPressed() {
+	//console.log('keyPressed')
+    strokeWeight(0);
+	if (ButtonsMenu) { if (ButtonsMenu.menuKeyPressed(keyCode)) return; } // Give menu a change to capture
+	//console.log('InvKeys')
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     console.log("Heartbeat:DOMContentLoaded");
     playGif();
+
+    // Assuming your server is running on the same host and port 3000
+
+    debugOut.push('DOMContentLoaded');
+    // Assuming ButtonsMenu.js exports a default function or class
+    import('./ButtonsMenu.js').then(module => {
+        ButtonsMenu = module.default;
+        // Now you can use ButtonsMenu
+        ButtonsMenu.btnConnectWebSockets();
+    }).catch(error => {
+        console.error("Failed to load ButtonsMenu.js", error);
+    });
 });
 
 
